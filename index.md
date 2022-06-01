@@ -1,37 +1,112 @@
-## Welcome to GitHub Pages
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
 
-You can use the [editor on GitHub](https://github.com/knowidont/knowidont.githut.io/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+    <title>猜数字游戏</title>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+    <style>
+      html {
+        font-family: sans-serif;
+      }
 
-### Markdown
+      body {
+        width: 50%;
+        max-width: 800px;
+        min-width: 450px;
+        margin: 0 auto;
+      }
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+      .lastResult {
+        color: white;
+        padding: 3px;
+      }
+    </style>
+  </head>
 
-```markdown
-Syntax highlighted code block
+  <body>
+    <h1>猜数字游戏</h1>
 
-# Header 1
-## Header 2
-### Header 3
+    <p>我刚才随机选定了一个100以内的自然数。看你能否在 10 次以内猜中它。每次我都会告诉你所猜的结果是高了还是低了。</p>
 
-- Bulleted
-- List
+    <div class="form">
+      <label for="guessField">请猜数：</label><input type="text" id="guessField" class="guessField">
+      <input type="submit" value="我猜" class="guessSubmit">
+    </div>
 
-1. Numbered
-2. List
+    <div class="resultParas">
+      <p class="guesses"></p>
+      <p class="lastResult"></p>
+      <p class="lowOrHi"></p>
+    </div>
 
-**Bold** and _Italic_ and `Code` text
+    <script>
+      let randomNumber = Math.floor(Math.random() * 100) + 1;
+      const guesses = document.querySelector('.guesses');
+      const lastResult = document.querySelector('.lastResult');
+      const lowOrHi = document.querySelector('.lowOrHi');
+      const guessSubmit = document.querySelector('.guessSubmit');
+      const guessField = document.querySelector('.guessField');
+      let guessCount = 1;
+      let resetButton;
 
-[Link](url) and ![Image](src)
-```
+      function checkGuess() {
+        let userGuess = Number(guessField.value);
+        if (guessCount === 1) {
+          guesses.textContent = '上次猜的数：';
+        }
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+        guesses.textContent += userGuess + ' ';
 
-### Jekyll Themes
+        if (userGuess === randomNumber) {
+          lastResult.textContent = '恭喜你！猜对了！';
+          lastResult.style.backgroundColor = 'green';
+          lowOrHi.textContent = '';
+          setGameOver();
+        } else if (guessCount === 10) {
+          lastResult.textContent = '!!!游戏结束!!!';
+          lowOrHi.textContent = '';
+          setGameOver();
+        } else {
+          lastResult.textContent = '你猜错了！';
+          lastResult.style.backgroundColor = 'red';
+          if(userGuess < randomNumber) {
+            lowOrHi.textContent = '你刚才猜低了！' ;
+          } else if(userGuess > randomNumber) {
+            lowOrHi.textContent = '你刚才猜高了！';
+          }
+        }
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/knowidont/knowidont.githut.io/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+        guessCount++;
+        guessField.value = '';
+        guessField.focus();
+      }
 
-### Support or Contact
+      guessSubmit.addEventListener('click', checkGuess);
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+      function setGameOver() {
+        guessField.disabled = true;
+        guessSubmit.disabled = true;
+        resetButton = document.createElement('button');
+        resetButton.textContent = '开始新游戏';
+        document.body.appendChild(resetButton);
+        resetButton.addEventListener('click', resetGame);
+      }
+
+      function resetGame() {
+        guessCount = 1;
+        const resetParas = document.querySelectorAll('.resultParas p');
+        for(let i = 0 ; i < resetParas.length ; i++) {
+          resetParas[i].textContent = '';
+        }
+
+        resetButton.parentNode.removeChild(resetButton);
+        guessField.disabled = false;
+        guessSubmit.disabled = false;
+        guessField.value = '';
+        guessField.focus();
+        lastResult.style.backgroundColor = 'white';
+        randomNumber = Math.floor(Math.random() * 100) + 1;
+      }
+    </script>
+  </body>
